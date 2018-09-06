@@ -55,25 +55,23 @@ class TrajectoryToSample(object):
             fea_curr = trajectory[i]
             fea_post = trajectory[i + 1]
 
-            if fea_prev.HasField('lane') and \
-               fea_prev.lane.HasField('lane_feature'):
-                lane_id_prev = fea_prev.lane.lane_feature.lane_id
-            else:
+            if not fea_prev.HasField('lane') or \
+               not fea_prev.lane.HasField('lane_feature'):
                 continue
+            lane_id_prev = fea_prev.lane.lane_feature.lane_id
 
-            if fea_curr.HasField('lane') and \
-               fea_curr.lane.HasField('lane_feature'):
-                lane_id_curr = fea_curr.lane.lane_feature.lane_id
-            else:
+            if not fea_curr.HasField('lane') or \
+               not fea_curr.lane.HasField('lane_feature'):
                 continue
+            lane_id_curr = fea_curr.lane.lane_feature.lane_id
 
-            if fea_post.HasField('lane') and \
-               fea_post.lane.HasField('lane_feature'):
-                lane_id_post = fea_post.lane.lane_feature.lane_id
-            else:
+            if not fea_post.HasField('lane') or \
+               not fea_post.lane.HasField('lane_feature'):
                 continue
+            lane_id_post = fea_post.lane.lane_feature.lane_id
 
-            if lane_id_curr == lane_id_prev or lane_id_curr == lane_id_post:
+            if lane_id_curr == lane_id_prev or \
+               lane_id_curr == lane_id_post:
                 results.append(trajectory[i])
 
         results.reverse()
