@@ -86,9 +86,7 @@ class TrajectoryToSample(object):
         2:  True Cutin
         '''
         if real_seq[0] == predict_seq[0]:
-            for i in range(1, len(real_seq)):
-                if len(real_seq) > len(predict_seq):
-                    return 0
+            for i in range(1, min(len(real_seq), len(predict_seq))):
                 if real_seq[i] != predict_seq[i]:
                     return 0
             return 1
@@ -97,12 +95,10 @@ class TrajectoryToSample(object):
             if len(real_seq) == 1:
                 return -1
 
-            for i in range(1, len(real_seq)):
-                if len(real_seq) - 1 > len(predict_seq):
-                    return -1
-                if real_seq[i] != predict_seq[i - 1]:
-                    return -1
-            return 2
+            for i in range(len(predict_seq)):
+                if predict_seq[i] in real_seq:
+                    return 2
+            return -1
 
     def is_successor_lane(self, feature, lane_id):
         '''
