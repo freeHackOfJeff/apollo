@@ -58,11 +58,9 @@ double Polynomial::operator()(const double& x) {
 
   auto r_it = coeff_.rbegin();
   double sum = r_it->second;
-  auto it_gap = index_gap_.rbegin();
-  while (it_gap != index_gap_.rend()) {
+  for (auto it_gap = index_gap_.rbegin(); it_gap != index_gap_.rend(); ++it_gap) {
     ++r_it;
     sum = power_cache_[*it_gap] * sum + r_it->second;
-    ++it_gap;
   }
 
   return sum;
