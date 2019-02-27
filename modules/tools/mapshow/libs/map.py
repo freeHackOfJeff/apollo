@@ -26,7 +26,7 @@ import common.proto_utils as proto_utils
 from modules.map.proto import map_pb2
 
 
-class Map:
+class Map(object):
     def __init__(self):
         self.map_pb = map_pb2.Map()
         self.colors = []
