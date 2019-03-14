@@ -31,22 +31,24 @@ from modules.canbus.proto import chassis_pb2
 from modules.canbus.proto.chassis_pb2 import Chassis
 from modules.localization.proto import localization_pb2
 
-
 kChassisTopic = '/apollo/canbus/chassis'
 kLocalizationTopic = '/apollo/localization/pose'
-
 
 class MileageCalculator(object):
     """Calculate mileage."""
 
     def __init__(self):
-        """Init."""
+        """
+        Init
+        """
         self.auto_mileage = 0.0
         self.manual_mileage = 0.0
         self.disengagements = 0
 
     def calculate(self, bag_file):
-        """Calculate mileage."""
+        """
+        Calculate mileage
+        """
         last_pos = None
         last_mode = 'Unknown'
         mileage = collections.defaultdict(lambda: 0.0)
@@ -59,7 +61,7 @@ class MileageCalculator(object):
                 # Mode changed
                 if last_mode != chassis.driving_mode:
                     if (last_mode == Chassis.COMPLETE_AUTO_DRIVE and
-                            chassis.driving_mode == Chassis.EMERGENCY_MODE):
+                        chassis.driving_mode == Chassis.EMERGENCY_MODE):
                         self.disengagements += 1
                     last_mode = chassis.driving_mode
                     # Reset start position.
@@ -80,16 +82,18 @@ class MileageCalculator(object):
 
 
 def main():
-    """Main function."""
+    if len(sys.argv) < 2:
+        print('Usage: %s [Bag1] [Bag2] ...' % sys.argv[0])
+        sys.exit(1)
+
     mc = MileageCalculator()
     for bag_file in sys.argv[1:]:
         mc.calculate(bag_file)
-    print 'Disengagements: %d' % mc.disengagements
-    print 'Auto mileage:   %.3f km / %.3f miles' % (
-        mc.auto_mileage * 1.60934, mc.auto_mileage)
-    print 'Manual mileage: %.3f km / %.3f miles' % (
-        mc.manual_mileage * 1.60934, mc.manual_mileage)
-
+    print('Disengagements: %d' % mc.disengagements)
+    print('Auto mileage:   %.3f km / %.3f miles' % (
+        mc.auto_mileage * 1.60934, mc.auto_mileage))
+    print('Manual mileage: %.3f km / %.3f miles' % (
+        mc.manual_mileage * 1.60934, mc.manual_mileage))
 
 if __name__ == '__main__':
     main()
