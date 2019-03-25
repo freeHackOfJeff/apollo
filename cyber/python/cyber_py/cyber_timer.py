@@ -44,7 +44,6 @@ _CYBER_TIMER = importlib.import_module('_cyber_timer')
 
 
 class Timer(object):
-
     """
     Class for cyber timer wrapper.
     """
@@ -56,7 +55,7 @@ class Timer(object):
         oneshot 1: perform the callback only after the first timing cycle
                 0:perform the callback every timed period
         '''
-        if (period == None and callback == None and oneshot == None):
+        if period is None and callback is None and oneshot is None:
             self.timer = _CYBER_TIMER.new_PyTimer_noparam()
         else:
             self.timer_cb = PY_TIMER_CB_TYPE(callback)
