@@ -50,7 +50,6 @@ void BaseMapNode::Init(const BaseMapConfig* map_config,
   if (create_map_cells) {
     InitMapMatrix(map_config_);
   }
-  return;
 }
 
 void BaseMapNode::InitMapMatrix(const BaseMapConfig* map_config) {
@@ -80,40 +79,40 @@ void BaseMapNode::ResetMapNode() {
 
 bool BaseMapNode::Save() {
   SaveIntensityImage();
-  char buf[1024];
   std::string path = map_config_->map_folder_path_;
   if (!EnsureDirectory(path)) {
     return false;
   }
-  path = path + "/map";
+  path += "/map";
   if (!EnsureDirectory(path)) {
     return false;
   }
+  char buf[1024];
   snprintf(buf, sizeof(buf), "/%03u", index_.resolution_id_);
-  path = path + buf;
+  path += buf;
   if (!EnsureDirectory(path)) {
     return false;
   }
   if (index_.zone_id_ > 0) {
-    path = path + "/north";
+    path += "/north";
   } else {
-    path = path + "/south";
+    path += "/south";
   }
   if (!EnsureDirectory(path)) {
     return false;
   }
   snprintf(buf, sizeof(buf), "/%02d", abs(index_.zone_id_));
-  path = path + buf;
+  path += buf;
   if (!EnsureDirectory(path)) {
     return false;
   }
   snprintf(buf, sizeof(buf), "/%08u", index_.m_);
-  path = path + buf;
+  path += buf;
   if (!EnsureDirectory(path)) {
     return false;
   }
   snprintf(buf, sizeof(buf), "/%08u", index_.n_);
-  path = path + buf;
+  path += buf;
 
   AINFO << "Save node: " << path;
 
@@ -123,55 +122,52 @@ bool BaseMapNode::Save() {
     fclose(file);
     is_changed_ = false;
     return true;
-  } else {
-    AERROR << "Can't write to file: " << path << ".";
-    return false;
   }
+  AERROR << "Cannot write to file: " << path << ".";
+  return false;
 }
 
 bool BaseMapNode::Load() {
-  char buf[1024];
   std::string path = map_config_->map_folder_path_;
   if (!DirectoryExists(path)) {
     return false;
   }
-  path = path + "/map";
+  path += "/map";
   if (!DirectoryExists(path)) {
     return false;
   }
+  char buf[1024];
   snprintf(buf, sizeof(buf), "/%03u", index_.resolution_id_);
-  path = path + buf;
+  path += buf;
   if (!DirectoryExists(path)) {
     return false;
   }
   if (index_.zone_id_ > 0) {
-    path = path + "/north";
+    path += "/north";
   } else {
-    path = path + "/south";
+    path += "/south";
   }
   if (!DirectoryExists(path)) {
     return false;
   }
   snprintf(buf, sizeof(buf), "/%02d", abs(index_.zone_id_));
-  path = path + buf;
+  path += buf;
   if (!DirectoryExists(path)) {
     return false;
   }
   snprintf(buf, sizeof(buf), "/%08u", index_.m_);
-  path = path + buf;
+  path += buf;
   if (!DirectoryExists(path)) {
     return false;
   }
   snprintf(buf, sizeof(buf), "/%08u", index_.n_);
-  path = path + buf;
+  path += buf;
 
   return Load(path.c_str());
 }
 
 bool BaseMapNode::Load(const char* filename) {
   data_is_ready_ = false;
-  // char buf[1024];
-
   FILE* file = fopen(filename, "rb");
   if (file) {
     LoadBinary(file);
@@ -179,10 +175,9 @@ bool BaseMapNode::Load(const char* filename) {
     is_changed_ = false;
     data_is_ready_ = true;
     return true;
-  } else {
-    AERROR << "Can't find the file: " << filename;
-    return false;
   }
+  AERROR << "Cannot find the file: " << filename;
+  return false;
 }
 
 unsigned int BaseMapNode::LoadBinary(FILE* file) {
@@ -360,9 +355,8 @@ bool BaseMapNode::GetCoordinate(const Eigen::Vector2d& coordinate,
     *x = static_cast<unsigned int>(off_x);
     *y = static_cast<unsigned int>(off_y);
     return true;
-  } else {
-    return false;
   }
+  return false;
 }
 
 // bool BaseMapNode::GetCoordinate(const idl::car::core::numerical::Vector3D&
@@ -431,44 +425,42 @@ bool BaseMapNode::SaveIntensityImage() const {
   if (!EnsureDirectory(path)) {
     return false;
   }
-  path = path + "/image";
+  path += "/image";
   if (!EnsureDirectory(path)) {
     return false;
   }
   snprintf(buf, sizeof(buf), "/%03u", index_.resolution_id_);
-  path = path + buf;
+  path += buf;
   if (!EnsureDirectory(path)) {
     return false;
   }
   if (index_.zone_id_ > 0) {
-    path = path + "/north";
+    path += "/north";
   } else {
-    path = path + "/south";
+    path += "/south";
   }
   if (!EnsureDirectory(path)) {
     return false;
   }
   snprintf(buf, sizeof(buf), "/%02d", abs(index_.zone_id_));
-  path = path + buf;
+  path += buf;
   if (!EnsureDirectory(path)) {
     return false;
   }
   snprintf(buf, sizeof(buf), "/%08u", index_.m_);
-  path = path + buf;
+  path += buf;
   if (!EnsureDirectory(path)) {
     return false;
   }
   snprintf(buf, sizeof(buf), "/%08u.png", index_.n_);
-  path = path + buf;
-  bool success0 = SaveIntensityImage(path);
-  return success0;
+  path += buf;
+  return SaveIntensityImage(path);
 }
 
 bool BaseMapNode::SaveIntensityImage(const std::string& path) const {
   cv::Mat image;
   map_matrix_->GetIntensityImg(&image);
-  bool success = cv::imwrite(path, image);
-  return success;
+  return cv::imwrite(path, image);
 }
 
 }  // namespace msf
