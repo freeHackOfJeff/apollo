@@ -121,18 +121,17 @@ void LaneCameraPerception::InitLane(
         perception_param_.debug_param().has_lane_out_dir()) {
       write_out_lane_file_ = true;
       out_lane_dir_ = perception_param_.debug_param().lane_out_dir();
-      std::string command;
-      command = "mkdir -p " + out_lane_dir_;
-      system(command.c_str());
+      if (!cyber::common::EnsureDirectory(out_lane_dir_)) {
+        AERROR << "Failed to create output lane directory: " << out_lane_dir_;
     }
 
     if (perception_param_.has_debug_param() &&
         perception_param_.debug_param().has_calibration_out_dir()) {
       write_out_calib_file_ = true;
       out_calib_dir_ = perception_param_.debug_param().calibration_out_dir();
-      std::string command;
-      command = "mkdir -p " + out_calib_dir_;
-      system(command.c_str());
+      if (!cyber::common::EnsureDirectory(out_calib_dir_)) {
+        AERROR << "Failed to create output calibration directory: "
+               << out_calib_dir_;
     }
   }
 }
@@ -210,19 +209,19 @@ bool LaneCameraPerception::Perception(const CameraPerceptionOptions &options,
     PERCEPTION_PERF_BLOCK_END_WITH_INDICATOR(
         frame->data_provider->sensor_name(), "LaneDetector");
 
-    if (!(lane_postprocessor_->Process2D(lane_postprocessor_options, frame))) {
+    if (!lane_postprocessor_->Process2D(lane_postprocessor_options, frame)) {
       AERROR << "Failed to postprocess lane 2D.";
       return false;
     }
     PERCEPTION_PERF_BLOCK_END_WITH_INDICATOR(
         frame->data_provider->sensor_name(), "LanePostprocessor2D");
 
-    // calibration service
+    // Calibration service
     frame->calibration_service->Update(frame);
     PERCEPTION_PERF_BLOCK_END_WITH_INDICATOR(
         frame->data_provider->sensor_name(), "CalibrationService");
 
-    if (!(lane_postprocessor_->Process3D(lane_postprocessor_options, frame))) {
+    if (!lane_postprocessor_->Process3D(lane_postprocessor_options, frame)) {
       AERROR << "Failed to postprocess lane 3D.";
       return false;
     }
@@ -230,7 +229,7 @@ bool LaneCameraPerception::Perception(const CameraPerceptionOptions &options,
         frame->data_provider->sensor_name(), "LanePostprocessor3D");
 
     if (write_out_lane_file_) {
-      std::string lane_file_path =
+      const std::string lane_file_path =
           out_lane_dir_ + "/" + std::to_string(frame->frame_id) + ".txt";
       WriteLanelines(write_out_lane_file_, lane_file_path, frame->lane_objects);
     }
@@ -244,7 +243,7 @@ bool LaneCameraPerception::Perception(const CameraPerceptionOptions &options,
   }
 
   if (write_out_calib_file_) {
-    std::string calib_file_path =
+    const std::string calib_file_path =
         out_calib_dir_ + "/" + std::to_string(frame->frame_id) + ".txt";
     WriteCalibrationOutput(write_out_calib_file_, calib_file_path, frame);
   }

@@ -39,6 +39,7 @@ std::vector<std::string> sub_type_string = {"UNKNOWN",
                                             "PEDESTRIAN",
                                             "TRAFFICCONE",
                                             "MAX_OBJECT_TYPE"};
+
 void WriteCamera2World(std::ofstream &fout, int frame_num,
                        const Eigen::Affine3d &pose) {
   if (!fout.is_open()) {
@@ -59,6 +60,7 @@ void WriteCamera2World(std::ofstream &fout, int frame_num,
   fout.flags(old_flags);          // restore the output format flags
   fout.precision(old_precision);  // restore the precision
 }
+
 void WriteTracking(std::ofstream &fout, int frame_num,
                    const std::vector<base::ObjectPtr> &tracked_object) {
   if (!fout.is_open()) {
@@ -173,6 +175,7 @@ int WriteDetections(const bool enable, const std::string &out_path,
   outf.close();
   return 0;
 }
+
 int WriteDetections(const bool enable, const std::string &out_path,
                     CameraFrame *frame) {
   if (!enable) {
@@ -207,6 +210,7 @@ int WriteDetections(const bool enable, const std::string &out_path,
   }
   return 0;
 }
+
 int WriteLanelines(const bool enable, const std::string &save_path,
                    const std::vector<base::LaneLine> &lane_objects) {
   if (!enable) {
@@ -285,20 +289,26 @@ int WriteLanelines(const bool enable, const std::string &save_path,
   return 0;
 }
 
-int WriteCalibrationOutput(bool enable, const std::string &out_path,
-                           const CameraFrame *frame) {
+bool WriteCalibrationOutput(bool enable, const std::string &out_path,
+                            const CameraFrame *frame) {
   if (!enable) {
-    return -1;
+    return false;
   }
-  float pitch_angle = 0.f;
-  float camera_ground_height = 0.f;
+
+  float pitch_angle = 0.0f;
+  float camera_ground_height = 0.0f;
   frame->calibration_service->QueryCameraToGroundHeightAndPitchAngle(
       &camera_ground_height, &pitch_angle);
   FILE *file_save = fopen(out_path.data(), "wt");
+  if (file_save == nullptr) {
+    AERROR << "Failed to open calibration output file: " << out_path.data();
+    return false;
+  }
   fprintf(file_save, "camera_ground_height:\t%f\n", camera_ground_height);
   fprintf(file_save, "pitch_angle:\t%f\n", pitch_angle);
   fclose(file_save);
-  return 0;
+
+  return true;
 }
 
 void WriteFusionTracking(std::ofstream &fout, int frame_num,
@@ -348,9 +358,8 @@ void WriteFusionTracking(std::ofstream &fout, int frame_num,
                ptr->velocity[1], ptr->velocity[2]);
       fout << output << std::endl;
     }
-  } else {
-    AERROR << "Unknown camera name";
   }
+  AERROR << "Unknown camera name";
 }
 }  // namespace camera
 }  // namespace perception

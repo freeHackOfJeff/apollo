@@ -342,7 +342,7 @@ bool ObstacleCameraPerception::Perception(
         frame->data_provider->sensor_name(), "LanePostprocessor3D");
 
     if (write_out_lane_file_) {
-      std::string lane_file_path =
+      const std::string lane_file_path =
           out_lane_dir_ + "/" + std::to_string(frame->frame_id) + ".txt";
       WriteLanelines(write_out_lane_file_, lane_file_path, frame->lane_objects);
     }
@@ -356,7 +356,7 @@ bool ObstacleCameraPerception::Perception(
   }
 
   if (write_out_calib_file_) {
-    std::string calib_file_path =
+    const std::string calib_file_path =
         out_calib_dir_ + "/" + std::to_string(frame->frame_id) + ".txt";
     WriteCalibrationOutput(write_out_calib_file_, calib_file_path, frame);
   }
